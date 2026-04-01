@@ -155,7 +155,7 @@ La API estará disponible en `http://localhost:8080`.
 |--------|--------|
 | Nicolas Muñoz Viveros | — |
 | Santiago Ramirez Bernal | https://github.com/SantiagoRB17 |
-| Samuel Saith Calle Santa | — |
+| Samuel Saith Calle Santa | https://github.com/Samuelk64 |
 
 ---
 
