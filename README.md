@@ -153,7 +153,7 @@ La API estará disponible en `http://localhost:8080`.
 
 | Nombre | GitHub |
 |--------|--------|
-| Nicolas Muñoz Viveros | — |
+| Nicolas Muñoz Viveros | https://github.com/quiso888 |
 | Santiago Ramirez Bernal | https://github.com/SantiagoRB17 |
 | Samuel Saith Calle Santa | https://github.com/Samuelk64 |
 
