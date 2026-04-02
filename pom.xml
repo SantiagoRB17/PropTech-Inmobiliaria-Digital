@@ -11,8 +11,8 @@
 	<groupId>com.proyecto</groupId>
 	<artifactId>inmobiliaria</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>PropTech Inmobiliaria</name>
+	<description>Plataforma de gestión inmobiliaria - Proyecto Final Estructuras de Datos 2026-1</description>
 	<url/>
 	<licenses>
 		<license/>

@@ -86,3 +86,5 @@ build/
 # Documentación generada
 # ========================
 HELP.md
+/context
+CLAUDE.md
