@@ -33,4 +33,7 @@ public class Asesor {
 
     @Builder.Default
     private List<String> inmueblesAsignados = new ArrayList<>();
+
+    @Builder.Default
+    private List<String> visitasAgendadas = new ArrayList<>();
 }
