@@ -14,9 +14,6 @@ import java.util.List;
 /**
  * Representa un cliente de la plataforma.
  * Se almacena en HashMap<String, Cliente> — búsqueda O(1) por identificacion.
- * Sus listas internas (favoritos, historialConsultas) usan ArrayList — acceso
- * secuencial y cronológico O(n).
- * El cliente también es nodo en el GrafoClienteInmueble.
  */
 @Data
 @Builder
@@ -51,4 +48,7 @@ public class Cliente {
 
     @Builder.Default
     private List<String> inmueblesDescartados = new ArrayList<>();
+
+    @Builder.Default
+    private List<String> inmueblesNegociados = new ArrayList<>();
 }
