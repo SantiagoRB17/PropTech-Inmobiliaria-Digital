@@ -1,6 +1,8 @@
-package com.proyecto.inmobiliaria.util;
+package com.proyecto.inmobiliaria.repository;
 
 import com.proyecto.inmobiliaria.model.Visita;
+import com.proyecto.inmobiliaria.util.ColaAtencion;
+import com.proyecto.inmobiliaria.util.ColaPrioridadVisitas;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
