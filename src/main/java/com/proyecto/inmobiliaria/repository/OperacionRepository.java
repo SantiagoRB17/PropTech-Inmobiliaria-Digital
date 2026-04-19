@@ -1,4 +1,4 @@
-package com.proyecto.inmobiliaria.util;
+package com.proyecto.inmobiliaria.repository;
 
 import com.proyecto.inmobiliaria.model.Operacion;
 import org.springframework.stereotype.Repository;
