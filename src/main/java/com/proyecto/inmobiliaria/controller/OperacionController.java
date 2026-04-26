@@ -1,4 +1,4 @@
-package com.proyecto.inmobiliaria;
+package com.proyecto.inmobiliaria.controller;
 
 import com.proyecto.inmobiliaria.model.Operacion;
 import com.proyecto.inmobiliaria.service.OperacionService;
