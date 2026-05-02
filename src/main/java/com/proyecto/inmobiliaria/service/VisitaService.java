@@ -1,5 +1,6 @@
 package com.proyecto.inmobiliaria.service;
 
+import com.proyecto.inmobiliaria.model.Asesor;
 import com.proyecto.inmobiliaria.model.Cliente;
 import com.proyecto.inmobiliaria.model.Visita;
 import com.proyecto.inmobiliaria.model.enums.EstadoBusqueda;
@@ -48,8 +49,11 @@ public class VisitaService {
 
         visitaRepository.encolarSolicitud(visita);
 
-        asesorRepository.buscarPorId(visita.getIdAsesor())
-                .getVisitasAgendadas().add(visita.getIdVisita());
+        Asesor asesor = asesorRepository.buscarPorId(visita.getIdAsesor());
+        if (asesor.getVisitasAgendadas() == null) {
+            asesor.setVisitasAgendadas(new java.util.ArrayList<>());
+        }
+        asesor.getVisitasAgendadas().add(visita.getIdVisita());
 
         return visita;
     }

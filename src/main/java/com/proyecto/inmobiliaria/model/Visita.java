@@ -37,5 +37,5 @@ public class Visita {
 
     private String observaciones;
 
-    private int prioridad;
+    private Integer prioridad;
 }
