@@ -7,6 +7,7 @@ import com.proyecto.inmobiliaria.repository.InmuebleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,6 +22,12 @@ public class ClienteService {
         if (clienteRepository.existePorId(cliente.getIdentificacion())) {
             throw new RuntimeException("Ya existe un cliente con identificación: " + cliente.getIdentificacion());
         }
+        // Cuando llega vía JSON, Jackson usa @NoArgsConstructor y @Builder.Default no aplica → listas null
+        if (cliente.getZonasInteres() == null)          cliente.setZonasInteres(new ArrayList<>());
+        if (cliente.getFavoritos() == null)              cliente.setFavoritos(new ArrayList<>());
+        if (cliente.getInmueblesConsultados() == null)   cliente.setInmueblesConsultados(new ArrayList<>());
+        if (cliente.getInmueblesDescartados() == null)   cliente.setInmueblesDescartados(new ArrayList<>());
+        if (cliente.getInmueblesNegociados() == null)    cliente.setInmueblesNegociados(new ArrayList<>());
         clienteRepository.guardar(cliente);
         grafoRepository.registrarCliente(cliente.getIdentificacion());
         return cliente;

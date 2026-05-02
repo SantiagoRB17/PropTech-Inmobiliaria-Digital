@@ -57,6 +57,10 @@ public class InmuebleService {
 
         inmuebleRepository.guardarEstadoPrevio(existente);
 
+        if (datos.getPrecio() != existente.getPrecio()) {
+            inmuebleRepository.registrarCambioPrecio(existente.getCodigo());
+        }
+
         existente.setDireccion(datos.getDireccion());
         existente.setCiudad(datos.getCiudad());
         existente.setBarrio(datos.getBarrio());

@@ -52,6 +52,10 @@ public class AlertaService {
         return alertaRepository.existeAlertaActivaPara(tipo, entidadRelacionada);
     }
 
+    public Alerta buscarAlertaActivaPara(TipoAlerta tipo, String entidadRelacionada) {
+        return alertaRepository.buscarAlertaActivaPara(tipo, entidadRelacionada);
+    }
+
     public Alerta buscarPorId(String idAlerta) {
         Alerta alerta = alertaRepository.buscarPorId(idAlerta);
         if (alerta == null) {
