@@ -87,6 +87,15 @@ public class AlertaRepository {
                         && entidadRelacionada.equals(a.getEntidadRelacionada()));
     }
 
+    /** Retorna la alerta activa existente para esa entidad y tipo, o null si no existe. O(n) */
+    public com.proyecto.inmobiliaria.model.Alerta buscarAlertaActivaPara(TipoAlerta tipo, String entidadRelacionada) {
+        return historial.stream()
+                .filter(a -> !a.isResuelta()
+                        && a.getTipo() == tipo
+                        && entidadRelacionada.equals(a.getEntidadRelacionada()))
+                .findFirst().orElse(null);
+    }
+
     /**
      * Marca una alerta como resuelta buscándola por ID. O(1)
      */

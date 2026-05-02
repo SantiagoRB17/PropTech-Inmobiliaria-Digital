@@ -56,4 +56,22 @@ public class DeteccionController {
     public ResponseEntity<List<Alerta>> detectarAsesoresConSobrecarga() {
         return ResponseEntity.ok(deteccionService.detectarAsesoresConSobrecarga());
     }
+
+    /**
+     * GET /deteccion/cambios-precio-frecuentes
+     * Detecta inmuebles cuyo precio ha cambiado demasiadas veces sin cierre.
+     */
+    @GetMapping("/cambios-precio-frecuentes")
+    public ResponseEntity<List<Alerta>> detectarCambiosDePrecioFrecuentes() {
+        return ResponseEntity.ok(deteccionService.detectarCambiosDePrecioFrecuentes());
+    }
+
+    /**
+     * GET /deteccion/concentracion-zona
+     * Detecta ciudades con alta concentración de visitas en el período actual.
+     */
+    @GetMapping("/concentracion-zona")
+    public ResponseEntity<List<Alerta>> detectarConcentracionPorZona() {
+        return ResponseEntity.ok(deteccionService.detectarConcentracionPorZona());
+    }
 }

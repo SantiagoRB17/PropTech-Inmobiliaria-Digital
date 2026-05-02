@@ -36,6 +36,8 @@ public class DeteccionService {
     private static final int UMBRAL_VISITAS_INMUEBLE = 3;
     private static final int UMBRAL_VISITAS_CLIENTE  = 3;
     private static final int UMBRAL_VISITAS_ASESOR   = 5;
+    private static final int UMBRAL_CAMBIOS_PRECIO   = 2;
+    private static final int UMBRAL_VISITAS_ZONA     = 3;
 
     private final VisitaRepository visitaRepository;
     private final InmuebleRepository inmuebleRepository;
@@ -52,12 +54,14 @@ public class DeteccionService {
         alertasGeneradas.addAll(detectarInmueblesSinCierre());
         alertasGeneradas.addAll(detectarClientesSinSeguimiento());
         alertasGeneradas.addAll(detectarAsesoresConSobrecarga());
+        alertasGeneradas.addAll(detectarCambiosDePrecioFrecuentes());
+        alertasGeneradas.addAll(detectarConcentracionPorZona());
         return alertasGeneradas;
     }
 
-    /**i
+    /**
      * Detecta inmuebles con muchas visitas que siguen disponibles.
-     * Criterio: >= UMBRAL_VISITAS_INMUEBLE visitas y el inmueble todavía está dsponible.
+     * Criterio: >= UMBRAL_VISITAS_INMUEBLE visitas y el inmueble todavía está disponible.
      */
     public List<Alerta> detectarInmueblesSinCierre() {
         List<Alerta> alertas = new ArrayList<>();
@@ -72,16 +76,19 @@ public class DeteccionService {
 
             if (cantidad >= UMBRAL_VISITAS_INMUEBLE
                     && inmuebleRepository.existePorId(codigo)
-                    && inmuebleRepository.buscarPorId(codigo).isDisponible()
-                    && !alertaService.existeAlertaActivaPara(TipoAlerta.INMUEBLE_SIN_CIERRE, codigo)) {
+                    && inmuebleRepository.buscarPorId(codigo).isDisponible()) {
 
-                alertas.add(alertaService.generarAlerta(
-                        TipoAlerta.INMUEBLE_SIN_CIERRE,
-                        "Inmueble " + codigo + " acumula " + cantidad
-                                + " visitas sin cierre. Alta demanda sin conversión.",
-                        NivelAtencion.MEDIA,
-                        codigo
-                ));
+                if (!alertaService.existeAlertaActivaPara(TipoAlerta.INMUEBLE_SIN_CIERRE, codigo)) {
+                    alertas.add(alertaService.generarAlerta(
+                            TipoAlerta.INMUEBLE_SIN_CIERRE,
+                            "Inmueble " + codigo + " acumula " + cantidad
+                                    + " visitas sin cierre. Alta demanda sin conversión.",
+                            NivelAtencion.MEDIA,
+                            codigo
+                    ));
+                } else {
+                    alertas.add(alertaService.buscarAlertaActivaPara(TipoAlerta.INMUEBLE_SIN_CIERRE, codigo));
+                }
             }
         }
         return alertas;
@@ -105,17 +112,21 @@ public class DeteccionService {
             Cliente cliente = clienteRepository.buscarPorId(idCliente);
             if (cliente == null) continue;
 
+            List<String> negociados = cliente.getInmueblesNegociados();
             if (cantidad >= UMBRAL_VISITAS_CLIENTE
-                    && cliente.getInmueblesNegociados().isEmpty()
-                    && !alertaService.existeAlertaActivaPara(TipoAlerta.CLIENTE_SIN_SEGUIMIENTO, idCliente)) {
+                    && (negociados == null || negociados.isEmpty())) {
 
-                alertas.add(alertaService.generarAlerta(
-                        TipoAlerta.CLIENTE_SIN_SEGUIMIENTO,
-                        "Cliente " + cliente.getNombre() + " (" + idCliente + ") tiene "
-                                + cantidad + " visitas sin ninguna operación registrada.",
-                        NivelAtencion.MEDIA,
-                        idCliente
-                ));
+                if (!alertaService.existeAlertaActivaPara(TipoAlerta.CLIENTE_SIN_SEGUIMIENTO, idCliente)) {
+                    alertas.add(alertaService.generarAlerta(
+                            TipoAlerta.CLIENTE_SIN_SEGUIMIENTO,
+                            "Cliente " + cliente.getNombre() + " (" + idCliente + ") tiene "
+                                    + cantidad + " visitas sin ninguna operación registrada.",
+                            NivelAtencion.MEDIA,
+                            idCliente
+                    ));
+                } else {
+                    alertas.add(alertaService.buscarAlertaActivaPara(TipoAlerta.CLIENTE_SIN_SEGUIMIENTO, idCliente));
+                }
             }
         }
         return alertas;
@@ -129,16 +140,89 @@ public class DeteccionService {
         List<Alerta> alertas = new ArrayList<>();
 
         for (Asesor asesor : asesorRepository.listarTodos()) {
-            int cantidad = asesor.getVisitasAgendadas().size();
-            if (cantidad >= UMBRAL_VISITAS_ASESOR
-                    && !alertaService.existeAlertaActivaPara(TipoAlerta.CLIENTE_SIN_SEGUIMIENTO, asesor.getIdentificacion())) {
-                alertas.add(alertaService.generarAlerta(
-                        TipoAlerta.CLIENTE_SIN_SEGUIMIENTO,
-                        "Asesor " + asesor.getNombre() + " (" + asesor.getIdentificacion()
-                                + ") tiene " + cantidad + " visitas agendadas. Posible sobrecarga.",
-                        NivelAtencion.ALTA,
-                        asesor.getIdentificacion()
-                ));
+            java.util.List<String> agendadas = asesor.getVisitasAgendadas();
+            int cantidad = agendadas == null ? 0 : agendadas.size();
+            if (cantidad >= UMBRAL_VISITAS_ASESOR) {
+                String id = asesor.getIdentificacion();
+                if (!alertaService.existeAlertaActivaPara(TipoAlerta.VISITA_PENDIENTE, id)) {
+                    alertas.add(alertaService.generarAlerta(
+                            TipoAlerta.VISITA_PENDIENTE,
+                            "Asesor " + asesor.getNombre() + " (" + id
+                                    + ") tiene " + cantidad + " visitas agendadas. Posible sobrecarga.",
+                            NivelAtencion.ALTA,
+                            id
+                    ));
+                } else {
+                    alertas.add(alertaService.buscarAlertaActivaPara(TipoAlerta.VISITA_PENDIENTE, id));
+                }
+            }
+        }
+        return alertas;
+    }
+
+    /**
+     * Detecta inmuebles cuyo precio ha cambiado >= UMBRAL_CAMBIOS_PRECIO veces.
+     * Indica inestabilidad comercial: el propietario ajusta precio sin lograr cierre.
+     */
+    public List<Alerta> detectarCambiosDePrecioFrecuentes() {
+        List<Alerta> alertas = new ArrayList<>();
+        Map<String, Integer> cambios = inmuebleRepository.getCambiosDePrecio();
+
+        for (Map.Entry<String, Integer> entrada : cambios.entrySet()) {
+            String codigo  = entrada.getKey();
+            int cantidad   = entrada.getValue();
+            String entidad = "precio-" + codigo;
+
+            if (cantidad >= UMBRAL_CAMBIOS_PRECIO) {
+                if (!alertaService.existeAlertaActivaPara(TipoAlerta.INMUEBLE_SIN_CIERRE, entidad)) {
+                    alertas.add(alertaService.generarAlerta(
+                            TipoAlerta.INMUEBLE_SIN_CIERRE,
+                            "El inmueble " + codigo + " ha cambiado de precio " + cantidad
+                                    + " veces sin registrar cierre. Posible inestabilidad comercial.",
+                            NivelAtencion.MEDIA,
+                            entidad
+                    ));
+                } else {
+                    alertas.add(alertaService.buscarAlertaActivaPara(TipoAlerta.INMUEBLE_SIN_CIERRE, entidad));
+                }
+            }
+        }
+        return alertas;
+    }
+
+    /**
+     * Detecta ciudades con >= UMBRAL_VISITAS_ZONA visitas, indicando alta concentración
+     * de interés en esa zona en el período actual.
+     * Usa TipoAlerta.ALTA_DEMANDA ya que la causa es exceso de demanda geográfica.
+     */
+    public List<Alerta> detectarConcentracionPorZona() {
+        List<Alerta> alertas = new ArrayList<>();
+        Map<String, Integer> visitasPorCiudad = new HashMap<>();
+
+        for (Visita visita : visitaRepository.listarTodas()) {
+            if (inmuebleRepository.existePorId(visita.getCodigoInmueble())) {
+                String ciudad = inmuebleRepository.buscarPorId(visita.getCodigoInmueble()).getCiudad();
+                visitasPorCiudad.put(ciudad, visitasPorCiudad.getOrDefault(ciudad, 0) + 1);
+            }
+        }
+
+        for (Map.Entry<String, Integer> entrada : visitasPorCiudad.entrySet()) {
+            String ciudad  = entrada.getKey();
+            int cantidad   = entrada.getValue();
+            String entidad = "zona-" + ciudad;
+
+            if (cantidad >= UMBRAL_VISITAS_ZONA) {
+                if (!alertaService.existeAlertaActivaPara(TipoAlerta.ALTA_DEMANDA, entidad)) {
+                    alertas.add(alertaService.generarAlerta(
+                            TipoAlerta.ALTA_DEMANDA,
+                            "La zona " + ciudad + " concentra " + cantidad
+                                    + " visitas en el período actual. Alta demanda detectada.",
+                            NivelAtencion.ALTA,
+                            entidad
+                    ));
+                } else {
+                    alertas.add(alertaService.buscarAlertaActivaPara(TipoAlerta.ALTA_DEMANDA, entidad));
+                }
             }
         }
         return alertas;
