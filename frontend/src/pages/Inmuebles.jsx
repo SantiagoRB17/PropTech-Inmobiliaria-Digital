@@ -109,12 +109,15 @@ export default function Inmuebles() {
     cargar()
   }
 
-  const inmueblesFiltrados = inmuebles.filter((inm) =>
-    !searchText ||
-    inm.codigo?.toLowerCase().includes(searchText.toLowerCase()) ||
-    inm.ciudad?.toLowerCase().includes(searchText.toLowerCase()) ||
-    inm.barrio?.toLowerCase().includes(searchText.toLowerCase())
-  )
+  const inmueblesFiltrados = inmuebles.filter((inm) => {
+    if (filtroTipo && inm.tipo !== filtroTipo) return false
+    if (filtroFinalidad && inm.finalidad !== filtroFinalidad) return false
+    if (soloDisponibles && !inm.disponible) return false
+    return !searchText ||
+      inm.codigo?.toLowerCase().includes(searchText.toLowerCase()) ||
+      inm.ciudad?.toLowerCase().includes(searchText.toLowerCase()) ||
+      inm.barrio?.toLowerCase().includes(searchText.toLowerCase())
+  })
 
   const handleCrear = async (e) => {
     e.preventDefault()
