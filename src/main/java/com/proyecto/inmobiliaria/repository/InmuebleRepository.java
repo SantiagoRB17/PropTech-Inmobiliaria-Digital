@@ -27,9 +27,12 @@ public class InmuebleRepository {
 
     /**
      * Guarda o actualiza un inmueble.
+     * Se elimina el nodo previo del BST antes de insertar para evitar duplicados
+     * cuando se llama en una actualización (el mismo código ya existe en el árbol).
      */
     public void guardar(Inmueble inmueble) {
         inmuebles.put(inmueble.getCodigo(), inmueble);
+        arbolPrecios.eliminar(inmueble.getCodigo());
         arbolPrecios.insertar(inmueble);
     }
 
