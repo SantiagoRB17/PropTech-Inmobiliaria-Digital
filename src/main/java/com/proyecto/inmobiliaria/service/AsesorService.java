@@ -6,6 +6,7 @@ import com.proyecto.inmobiliaria.repository.InmuebleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,6 +20,8 @@ public class AsesorService {
         if (asesorRepository.existePorId(asesor.getIdentificacion())) {
             throw new RuntimeException("Ya existe un asesor con identificación: " + asesor.getIdentificacion());
         }
+        if (asesor.getInmueblesAsignados() == null) asesor.setInmueblesAsignados(new ArrayList<>());
+        if (asesor.getVisitasAgendadas() == null)   asesor.setVisitasAgendadas(new ArrayList<>());
         asesorRepository.guardar(asesor);
         return asesor;
     }

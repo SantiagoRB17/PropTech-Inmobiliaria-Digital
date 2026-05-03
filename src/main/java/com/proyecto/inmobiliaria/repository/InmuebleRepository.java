@@ -22,6 +22,9 @@ public class InmuebleRepository {
 
     private final PilaAcciones<Inmueble> historialCambios = new PilaAcciones<>();
 
+    /** Conteo de cambios de precio por código de inmueble. */
+    private final Map<String, Integer> cambiosDePrecio = new HashMap<>();
+
     /**
      * Guarda o actualiza un inmueble.
      */
@@ -85,6 +88,16 @@ public class InmuebleRepository {
 
     public boolean hayAccionesPorDeshacer() {
         return !historialCambios.estaVacia();
+    }
+
+    /** Registra un cambio de precio para el inmueble indicado. O(1) */
+    public void registrarCambioPrecio(String codigo) {
+        cambiosDePrecio.put(codigo, cambiosDePrecio.getOrDefault(codigo, 0) + 1);
+    }
+
+    /** Retorna el mapa de cambios de precio (copia defensiva). O(n) */
+    public Map<String, Integer> getCambiosDePrecio() {
+        return new HashMap<>(cambiosDePrecio);
     }
 
     private Inmueble copiarInmueble(Inmueble original) {

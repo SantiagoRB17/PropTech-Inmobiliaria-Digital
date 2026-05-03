@@ -33,11 +33,16 @@ public class OperacionRepository {
 
 
     /**
-     * Registra una operación. La agrega al HashMap y al historial cronológico.
+     * Registra una operación. La agrega al HashMap y, solo la primera vez, al historial.
+     * Las actualizaciones de estado (cerrar/cancelar) mutan el objeto en memoria:
+     * el ArrayList ya tiene la referencia, por lo que refleja el estado actualizado.
      */
     public void guardar(Operacion operacion) {
+        boolean esNueva = !operaciones.containsKey(operacion.getIdOperacion());
         operaciones.put(operacion.getIdOperacion(), operacion);
-        historial.add(operacion);
+        if (esNueva) {
+            historial.add(operacion);
+        }
     }
 
     /** Búsqueda por ID. O(1) */

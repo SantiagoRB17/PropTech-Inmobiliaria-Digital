@@ -48,8 +48,12 @@ public class OperacionService {
         operacion.setEstado(EstadoOperacion.EN_PROCESO);
         operacionRepository.guardar(operacion);
 
-        clienteRepository.buscarPorId(operacion.getIdCliente())
-                .getInmueblesNegociados().add(operacion.getCodigoInmueble());
+        com.proyecto.inmobiliaria.model.Cliente clienteOp =
+                clienteRepository.buscarPorId(operacion.getIdCliente());
+        if (clienteOp.getInmueblesNegociados() == null) {
+            clienteOp.setInmueblesNegociados(new java.util.ArrayList<>());
+        }
+        clienteOp.getInmueblesNegociados().add(operacion.getCodigoInmueble());
 
         return operacion;
     }
