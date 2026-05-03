@@ -1,0 +1,207 @@
+/* ── Design Tokens ── */
+:root {
+  --color-bg-dark:    #222831;
+  --color-panel:      #283b48;
+  --color-accent:     #00a6c0;
+  --color-accent-dark:#007f93;
+  --color-sand:       #d8d7ce;
+  --color-bg-light:   #f0efeb;
+  --color-surface:    #ffffff;
+  --color-text:       #222831;
+  --color-text-mid:   #283b48;
+  --color-text-muted: #6b7f8e;
+  --color-success:    #1a9e6e;
+  --color-warning:    #d4890a;
+  --color-danger:     #c0392b;
+  --color-gold:       #f0c040;
+
+  --sidebar-width: 228px;
+  --topbar-height: 60px;
+  --radius-card:   12px;
+  --radius-btn:    8px;
+  --radius-badge:  20px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--color-bg-light);
+  color: var(--color-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { cursor: pointer; font-family: inherit; }
+a { text-decoration: none; color: inherit; }
+input, select, textarea { font-family: inherit; }
+
+/* ── Scrollbar personalizada ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-sand); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+/* ── Utilerías ── */
+.mono { font-family: 'JetBrains Mono', monospace; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-dark));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--color-accent);
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-btn);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-outline:hover { background: var(--color-accent); color: #fff; }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-sand);
+  border-radius: var(--radius-btn);
+  font-size: 12px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-ghost:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-sand);
+  border-radius: var(--radius-card);
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+/* ── Tablas ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead tr { background: var(--color-bg-light); }
+.data-table thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.data-table tbody tr {
+  border-top: 1px solid var(--color-sand);
+  transition: background 0.12s;
+}
+.data-table tbody tr:hover { background: #f8f8f6; }
+.data-table td { padding: 11px 14px; vertical-align: middle; }
+
+/* ── Formularios ── */
+.field-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.field-label { font-size: 12px; font-weight: 600; color: var(--color-text-muted); }
+.field-input {
+  padding: 9px 12px;
+  border: 1px solid var(--color-sand);
+  border-radius: 7px;
+  font-size: 13px;
+  background: var(--color-bg-light);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field-input:focus { border-color: var(--color-accent); background: #fff; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: 28px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+
+/* ── Mensajes de estado ── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 48px 24px; color: var(--color-text-muted); text-align: center;
+}
+.empty-state svg { opacity: 0.35; }
+.error-banner {
+  background: #fdecea; color: var(--color-danger);
+  border: 1px solid #f5bbb5; border-radius: 8px;
+  padding: 12px 16px; font-size: 13px;
+}
+
+/* ── Spinner de carga ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--color-sand);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.loading-center {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px; gap: 12px; color: var(--color-text-muted); font-size: 13px;
+}
+
+/* ── Pills de filtro ── */
+.pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--color-sand);
+  font-size: 12px; font-weight: 500;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.pill:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.pill.active {
+  border-color: var(--color-accent);
+  background: #00a6c015;
+  color: var(--color-accent);
+  font-weight: 600;
+}
