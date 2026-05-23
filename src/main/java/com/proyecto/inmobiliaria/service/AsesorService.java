@@ -17,6 +17,10 @@ public class AsesorService {
     private final InmuebleRepository inmuebleRepository;
 
     public Asesor registrar(Asesor asesor) {
+        if (asesor.getIdentificacion() == null || asesor.getIdentificacion().isBlank()) {
+            int siguiente = asesorRepository.listarTodos().size() + 1;
+            asesor.setIdentificacion(String.format("ASE-%03d", siguiente));
+        }
         if (asesorRepository.existePorId(asesor.getIdentificacion())) {
             throw new RuntimeException("Ya existe un asesor con identificación: " + asesor.getIdentificacion());
         }
