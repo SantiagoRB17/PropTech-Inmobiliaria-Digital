@@ -27,7 +27,8 @@ public record ChatbotContextDTO(
             String finalidad,
             String zona,
             double precio,
-            int habitaciones
+            int habitaciones,
+            String codigoAsesor
     ) {}
 
     /** Campos clave de un cliente. */

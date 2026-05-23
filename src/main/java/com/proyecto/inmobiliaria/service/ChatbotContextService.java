@@ -41,7 +41,8 @@ public class ChatbotContextService {
                         i.getFinalidad().name(),
                         i.getBarrio() + ", " + i.getCiudad(),
                         i.getPrecio(),
-                        i.getHabitaciones()
+                        i.getHabitaciones(),
+                        i.getCodigoAsesor()
                 ))
                 .toList();
 

@@ -83,3 +83,7 @@ export const detectarClientesSinSeguimiento = () => api.get('/deteccion/clientes
 export const detectarAsesoresSobrecarga = () => api.get('/deteccion/asesores-sobrecarga')
 export const detectarCambiosPrecioFrecuentes = () => api.get('/deteccion/cambios-precio-frecuentes')
 export const detectarConcentracionZona = () => api.get('/deteccion/concentracion-zona')
+
+// ── Chatbot ──
+export const sendChatMessage = (message) =>
+  api.post('/api/v1/chatbot/message', { message })
