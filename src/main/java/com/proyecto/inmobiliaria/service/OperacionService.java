@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +42,8 @@ public class OperacionService {
         }
 
         if (operacion.getIdOperacion() == null || operacion.getIdOperacion().isBlank()) {
-            operacion.setIdOperacion(UUID.randomUUID().toString());
+            int siguiente = operacionRepository.listarTodas().size() + 1;
+            operacion.setIdOperacion(String.format("OP-%03d", siguiente));
         }
         operacion.setEstado(EstadoOperacion.EN_PROCESO);
         operacionRepository.guardar(operacion);

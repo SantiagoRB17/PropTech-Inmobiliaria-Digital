@@ -19,6 +19,10 @@ public class ClienteService {
     private final GrafoRepository grafoRepository;
 
     public Cliente registrar(Cliente cliente) {
+        if (cliente.getIdentificacion() == null || cliente.getIdentificacion().isBlank()) {
+            int siguiente = clienteRepository.listarTodos().size() + 1;
+            cliente.setIdentificacion(String.format("CLI-%03d", siguiente));
+        }
         if (clienteRepository.existePorId(cliente.getIdentificacion())) {
             throw new RuntimeException("Ya existe un cliente con identificación: " + cliente.getIdentificacion());
         }

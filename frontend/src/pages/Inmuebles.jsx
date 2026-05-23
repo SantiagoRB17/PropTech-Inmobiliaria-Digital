@@ -41,7 +41,7 @@ export default function Inmuebles() {
   const [modalOpen, setModalOpen] = useState(false)
   const [asesores, setAsesores] = useState([])
   const [formData, setFormData] = useState({
-    codigo: '', direccion: '', ciudad: '', barrio: '',
+    direccion: '', ciudad: '', barrio: '',
     tipo: 'APARTAMENTO', finalidad: 'VENTA',
     precio: '', area: '', habitaciones: '', banos: '',
     estado: 'NUEVO', disponible: true, codigoAsesor: '',
@@ -144,7 +144,7 @@ export default function Inmuebles() {
       })
       setModalOpen(false)
       setFormData({
-        codigo: '', direccion: '', ciudad: '', barrio: '',
+        direccion: '', ciudad: '', barrio: '',
         tipo: 'APARTAMENTO', finalidad: 'VENTA',
         precio: '', area: '', habitaciones: '', banos: '',
         estado: 'NUEVO', disponible: true, codigoAsesor: '',
@@ -332,10 +332,9 @@ export default function Inmuebles() {
         <form onSubmit={handleCrear}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' }}>
             {[
-              { label: 'Código', key: 'codigo', required: true },
-              { label: 'Ciudad', key: 'ciudad', required: true },
+              { label: 'Ciudad',    key: 'ciudad',    required: true },
               { label: 'Dirección', key: 'direccion', required: true },
-              { label: 'Barrio', key: 'barrio' },
+              { label: 'Barrio',    key: 'barrio' },
             ].map(({ label, key, required }) => (
               <div key={key} className="field-group">
                 <label className="field-label">{label}</label>

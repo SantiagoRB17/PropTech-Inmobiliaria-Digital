@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,8 @@ public class VisitaService {
         validar(visita);
 
         if (visita.getIdVisita() == null || visita.getIdVisita().isBlank()) {
-            visita.setIdVisita(UUID.randomUUID().toString());
+            int siguiente = visitaRepository.listarTodas().size() + 1;
+            visita.setIdVisita(String.format("VIS-%03d", siguiente));
         }
 
         Cliente cliente = clienteRepository.buscarPorId(visita.getIdCliente());
