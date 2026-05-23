@@ -12,6 +12,7 @@ public record ChatbotContextDTO(
         List<InmuebleResumen> inmueblesDisponibles,
         int totalClientes,
         List<ClienteResumen> clientes,
+        List<AsesorResumen> asesores,
         List<VisitaResumen> visitasPendientes,
         List<VisitaResumen> visitasPrioritarias,
         int totalAlertas,
@@ -28,7 +29,18 @@ public record ChatbotContextDTO(
             String zona,
             double precio,
             int habitaciones,
-            String codigoAsesor
+            String codigoAsesor,
+            String nombreAsesor
+    ) {}
+
+    /** Campos clave de un asesor. */
+    public record AsesorResumen(
+            String codigo,
+            String nombre,
+            String contacto,
+            String especialidad,
+            String zonaAsignada,
+            int cierresRealizados
     ) {}
 
     /** Campos clave de un cliente. */

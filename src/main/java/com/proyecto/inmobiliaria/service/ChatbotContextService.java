@@ -4,6 +4,7 @@ import com.proyecto.inmobiliaria.dto.ChatbotContextDTO;
 import com.proyecto.inmobiliaria.model.Inmueble;
 import com.proyecto.inmobiliaria.model.enums.EstadoVisita;
 import com.proyecto.inmobiliaria.repository.AlertaRepository;
+import com.proyecto.inmobiliaria.repository.AsesorRepository;
 import com.proyecto.inmobiliaria.repository.ClienteRepository;
 import com.proyecto.inmobiliaria.repository.InmuebleRepository;
 import com.proyecto.inmobiliaria.repository.VisitaRepository;
@@ -26,6 +27,7 @@ public class ChatbotContextService {
     private final ClienteRepository clienteRepository;
     private final VisitaRepository visitaRepository;
     private final AlertaRepository alertaRepository;
+    private final AsesorRepository asesorRepository;
 
     /**
      * Genera el contexto completo del sistema. O(n) sobre cada colección.
@@ -35,14 +37,31 @@ public class ChatbotContextService {
         // Inmuebles disponibles con campos clave
         List<ChatbotContextDTO.InmuebleResumen> inmueblesDisponibles = inmuebleRepository.listarTodos().stream()
                 .filter(Inmueble::isDisponible)
-                .map(i -> new ChatbotContextDTO.InmuebleResumen(
-                        i.getCodigo(),
-                        i.getTipo().name(),
-                        i.getFinalidad().name(),
-                        i.getBarrio() + ", " + i.getCiudad(),
-                        i.getPrecio(),
-                        i.getHabitaciones(),
-                        i.getCodigoAsesor()
+                .map(i -> {
+                    var asesor = asesorRepository.buscarPorId(i.getCodigoAsesor());
+                    String nombreAsesor = asesor != null ? asesor.getNombre() : "Sin asesor";
+                    return new ChatbotContextDTO.InmuebleResumen(
+                            i.getCodigo(),
+                            i.getTipo().name(),
+                            i.getFinalidad().name(),
+                            i.getBarrio() + ", " + i.getCiudad(),
+                            i.getPrecio(),
+                            i.getHabitaciones(),
+                            i.getCodigoAsesor(),
+                            nombreAsesor
+                    );
+                })
+                .toList();
+
+        // Asesores con sus datos completos para resolución de códigos
+        List<ChatbotContextDTO.AsesorResumen> asesores = asesorRepository.listarTodos().stream()
+                .map(a -> new ChatbotContextDTO.AsesorResumen(
+                        a.getIdentificacion(),
+                        a.getNombre(),
+                        a.getContacto(),
+                        a.getEspecialidad(),
+                        a.getZonaAsignada(),
+                        a.getCierresRealizados()
                 ))
                 .toList();
 
@@ -105,6 +124,7 @@ public class ChatbotContextService {
                 inmueblesDisponibles,
                 clientes.size(),
                 clientes,
+                asesores,
                 visitasPendientes,
                 visitasPrioritarias,
                 alertasActivas.size(),
