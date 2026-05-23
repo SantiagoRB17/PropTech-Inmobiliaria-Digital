@@ -16,7 +16,7 @@ export default function Asesores() {
   // Modal crear
   const [modalOpen, setModalOpen] = useState(false)
   const [formData, setFormData] = useState({
-    identificacion: '', nombre: '', contacto: '', especialidad: '', zonaAsignada: '',
+    nombre: '', contacto: '', especialidad: '', zonaAsignada: '',
   })
 
   // Modal editar
@@ -40,12 +40,11 @@ export default function Asesores() {
 
   const handleCrear = async (e) => {
     e.preventDefault()
-    if (!formData.identificacion.trim()) { alert('La identificación es obligatoria.'); return }
     if (!formData.nombre.trim()) { alert('El nombre es obligatorio.'); return }
     try {
       await createAsesor(formData)
       setModalOpen(false)
-      setFormData({ identificacion: '', nombre: '', contacto: '', especialidad: '', zonaAsignada: '' })
+      setFormData({ nombre: '', contacto: '', especialidad: '', zonaAsignada: '' })
       cargar()
     } catch (err) {
       alert(err.response?.data?.message || err.response?.data?.error || 'Error al registrar asesor')
@@ -222,11 +221,10 @@ export default function Asesores() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Registrar Asesor">
         <form onSubmit={handleCrear}>
           {[
-            { label: 'Identificación', key: 'identificacion', required: true },
-            { label: 'Nombre',         key: 'nombre',         required: true },
+            { label: 'Nombre',           key: 'nombre',       required: true },
             { label: 'Contacto (email)', key: 'contacto' },
-            { label: 'Especialidad',   key: 'especialidad' },
-            { label: 'Zona asignada',  key: 'zonaAsignada' },
+            { label: 'Especialidad',     key: 'especialidad' },
+            { label: 'Zona asignada',    key: 'zonaAsignada' },
           ].map(({ label, key, required }) => (
             <div key={key} className="field-group">
               <label className="field-label">{label}</label>

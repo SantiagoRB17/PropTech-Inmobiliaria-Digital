@@ -37,7 +37,7 @@ export default function Clientes() {
   const [interaccionMsg, setInteraccionMsg]       = useState('')
 
   const [formData, setFormData] = useState({
-    identificacion: '', nombre: '', correo: '', telefono: '',
+    nombre: '', correo: '', telefono: '',
     tipoCliente: 'COMPRADOR', presupuesto: '',
     tipoDeseado: 'APARTAMENTO', habitacionesMin: 1,
     estadoBusqueda: 'ACTIVO', zonasInteres: '',
@@ -60,8 +60,7 @@ export default function Clientes() {
 
   const handleCrear = async (e) => {
     e.preventDefault()
-    if (!formData.identificacion.trim()) { alert('La identificación es obligatoria.'); return }
-    if (!formData.nombre.trim())         { alert('El nombre es obligatorio.'); return }
+    if (!formData.nombre.trim()) { alert('El nombre es obligatorio.'); return }
     try {
       await createCliente({
         ...formData,
@@ -73,7 +72,7 @@ export default function Clientes() {
       })
       setModalOpen(false)
       setFormData({
-        identificacion: '', nombre: '', correo: '', telefono: '',
+        nombre: '', correo: '', telefono: '',
         tipoCliente: 'COMPRADOR', presupuesto: '',
         tipoDeseado: 'APARTAMENTO', habitacionesMin: 1,
         estadoBusqueda: 'ACTIVO', zonasInteres: '',
@@ -504,10 +503,9 @@ export default function Clientes() {
         <form onSubmit={handleCrear}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' }}>
             {[
-              { label: 'Identificación', key: 'identificacion', required: true },
-              { label: 'Nombre',         key: 'nombre',         required: true },
-              { label: 'Correo',         key: 'correo' },
-              { label: 'Teléfono',       key: 'telefono' },
+              { label: 'Nombre',    key: 'nombre',   required: true },
+              { label: 'Correo',    key: 'correo' },
+              { label: 'Teléfono', key: 'telefono' },
             ].map(({ label, key, required }) => (
               <div key={key} className="field-group">
                 <label className="field-label">{label}</label>

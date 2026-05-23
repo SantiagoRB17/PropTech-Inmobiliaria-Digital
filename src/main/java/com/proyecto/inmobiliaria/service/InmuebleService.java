@@ -22,6 +22,10 @@ public class InmuebleService {
      * Valida que el asesor asignado exista y lo indexa en el grafo.
      */
     public Inmueble registrar(Inmueble inmueble) {
+        if (inmueble.getCodigo() == null || inmueble.getCodigo().isBlank()) {
+            int siguiente = inmuebleRepository.listarTodos().size() + 1;
+            inmueble.setCodigo(String.format("INM-%03d", siguiente));
+        }
         if (inmuebleRepository.existePorId(inmueble.getCodigo())) {
             throw new RuntimeException("Ya existe un inmueble con código: " + inmueble.getCodigo());
         }
