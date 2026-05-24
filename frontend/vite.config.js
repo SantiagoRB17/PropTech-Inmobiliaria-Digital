@@ -24,6 +24,7 @@ export default defineConfig({
       '/recomendaciones':{ target: 'http://localhost:8080', changeOrigin: true, bypass: apiBypass },
       '/reportes':       { target: 'http://localhost:8080', changeOrigin: true, bypass: apiBypass },
       '/deteccion':      { target: 'http://localhost:8080', changeOrigin: true, bypass: apiBypass },
+      '/api':            { target: 'http://localhost:8080', changeOrigin: true, bypass: apiBypass },
     },
   },
 })

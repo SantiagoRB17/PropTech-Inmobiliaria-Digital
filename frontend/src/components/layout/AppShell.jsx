@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
+import Chatbot from '../ui/Chatbot'
 
 export default function AppShell() {
   return (
@@ -12,6 +13,7 @@ export default function AppShell() {
           <Outlet />
         </div>
       </main>
+      <Chatbot />
     </div>
   )
 }
