@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/n8n-Chatbot-EF6C00?style=flat-square&logo=n8n&logoColor=white"/>
   <img src="https://img.shields.io/badge/Bun-000?logo=bun&logoColor=fff&style=flat-square"/>
   <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff&style=flat-square"/>
-  <img src="https://img.shields.io/badge/Estado-En_desarrollo-yellow?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Estado-Completado-Green?style=flat-square"/>
 </p>
 
 <p align="center">
