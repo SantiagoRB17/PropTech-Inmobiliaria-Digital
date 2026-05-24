@@ -5,6 +5,9 @@
   <img src="https://img.shields.io/badge/Spring_Boot-4.0.5-6DB33F?style=flat-square&logo=springboot&logoColor=white"/>
   <img src="https://img.shields.io/badge/React-18.3.1-61DAFB?style=flat-square&logo=react&logoColor=white"/>
   <img src="https://img.shields.io/badge/Vite-5.2-646CFF?style=flat-square&logo=vite&logoColor=white"/>
+  <img src="https://img.shields.io/badge/n8n-Chatbot-EF6C00?style=flat-square&logo=n8n&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Bun-000?logo=bun&logoColor=fff&style=flat-square"/>
+  <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff&style=flat-square"/>
   <img src="https://img.shields.io/badge/Estado-En_desarrollo-yellow?style=flat-square"/>
 </p>
 
@@ -37,6 +40,7 @@ Cliente → Asesor → Inmueble
 - **Alertas automáticas** — contratos próximos a vencer, inmuebles sin actividad, clientes sin seguimiento
 - **Detección de anomalías** — inmuebles con muchas visitas sin cierre, asesores sobrecargados, cambios de precio frecuentes
 - **Reportes y rankings** — actividad por zona, efectividad de asesores, ordenación BST por precio
+- **Asistente IA (Chatbot)** — chat flotante en el frontend; el mensaje viaja al backend, que lo reenvía a n8n; n8n consulta el contexto del sistema y llama a un LLM para responder preguntas sobre inmuebles, clientes, asesores y alertas
 
 ---
 
@@ -72,12 +76,18 @@ Cada estructura está implementada manualmente y justificada por el problema con
 - **Axios 1.7** — cliente HTTP para consumir la API
 - **Lucide React** — iconografía
 
+**Chatbot**
+- **n8n** — orquestador de flujo; recibe el mensaje, consulta el contexto del sistema vía `GET /api/v1/chatbot/context` y llama al LLM
+- **LLM (Groq)** — modelo de lenguaje que responde con base en el estado real de los datos en memoria
+- **Docker Compose** — levanta el contenedor de n8n (`docker-compose.yml` en la raíz)
+
 ---
 
 ## Estructura del proyecto
 
 ```
 Inmobiliaria/
+├── docker-compose.yml            # Levanta n8n para el chatbot
 ├── src/main/java/com/proyecto/inmobiliaria/
 │   ├── PropTechApplication.java
 │   ├── DataLoader.java           # Datos de ejemplo al arrancar
@@ -85,13 +95,14 @@ Inmobiliaria/
 │   ├── controller/               # Endpoints REST (@RestController)
 │   ├── service/                  # Lógica de negocio (@Service)
 │   ├── repository/               # Acceso a datos en memoria (@Repository)
-│   └── config/                   # Configuración CORS
-│       └── util/                 # Estructuras de datos propias
-│           ├── ArbolBST.java
-│           ├── GrafoClienteInmueble.java
-│           ├── PilaAcciones.java
-│           ├── ColaAtencion.java
-│           └── ColaPrioridadVisitas.java
+│   ├── dto/                      # ChatbotRequestDTO, ChatbotResponseDTO, ChatbotContextDTO
+│   ├── config/                   # Configuración CORS
+│   └── util/                     # Estructuras de datos propias
+│       ├── ArbolBST.java
+│       ├── GrafoClienteInmueble.java
+│       ├── PilaAcciones.java
+│       ├── ColaAtencion.java
+│       └── ColaPrioridadVisitas.java
 │
 └── frontend/
     ├── index.html
@@ -103,7 +114,7 @@ Inmobiliaria/
         │   └── index.js          # Todas las llamadas HTTP (Axios)
         ├── components/
         │   ├── layout/           # AppShell, Sidebar, TopBar
-        │   └── ui/               # DSBadge, StatusBadge, Modal, KpiCard, GrafoPanel
+        │   └── ui/               # DSBadge, StatusBadge, Modal, KpiCard, GrafoPanel, Chatbot
         └── pages/
             ├── Dashboard.jsx
             ├── Inmuebles.jsx
@@ -122,7 +133,7 @@ Inmobiliaria/
 
 ## Instalación y ejecución
 
-**Requisitos:** Java 21+, Maven, Node.js 18+
+**Requisitos:** Java 21+, Maven, Node.js 18+, Docker
 
 ### Backend
 
@@ -144,6 +155,18 @@ npm run dev
 La interfaz estará disponible en `http://localhost:5173`.  
 El proxy de Vite redirige automáticamente todas las peticiones al backend (`/inmuebles`, `/clientes`, etc. → `http://localhost:8080`).
 
+### Chatbot (n8n)
+
+```bash
+# Desde la raíz del proyecto
+docker-compose up -d
+```
+
+n8n estará disponible en `http://localhost:5678`. Una vez activo, importa el flujo del chatbot y publícalo. El flujo debe:
+1. Recibir el mensaje en `POST /webhook/webhook-chat-groq`
+2. Consultar `GET http://host.docker.internal:8080/api/v1/chatbot/context`
+3. Llamar al LLM con el contexto y devolver `{ "reply": "..." }`
+
 ---
 
 ## Endpoints
@@ -158,10 +181,9 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 | `POST` | `/inmuebles` | Registrar un nuevo inmueble |
 | `PUT` | `/inmuebles/{codigo}` | Actualizar un inmueble |
 | `DELETE` | `/inmuebles/{codigo}` | Eliminar un inmueble |
-| `GET` | `/inmuebles/filtrar` | Filtrar por precio, zona, tipo, habitaciones |
-| `GET` | `/inmuebles/rango-precio` | Consulta por rango de precios *(BST)* |
-| `GET` | `/inmuebles/ordenados` | Listado ordenado por precio *(BST inorden)* |
-| `POST` | `/inmuebles/{codigo}/deshacer` | Deshacer último cambio *(Pila)* |
+| `GET` | `/inmuebles/ordenados-por-precio` | Listado ordenado por precio *(BST inorden)* |
+| `PATCH` | `/inmuebles/{codigo}/disponibilidad` | Cambiar disponibilidad de un inmueble |
+| `POST` | `/inmuebles/deshacer` | Deshacer último cambio *(Pila)* |
 
 </details>
 
@@ -175,8 +197,10 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 | `POST` | `/clientes` | Registrar un nuevo cliente |
 | `PUT` | `/clientes/{id}` | Actualizar datos del cliente |
 | `DELETE` | `/clientes/{id}` | Eliminar un cliente |
-| `GET` | `/clientes/{id}/historial` | Historial de interacciones |
-| `DELETE` | `/clientes/{id}/favoritos/{codigo}` | Quitar un inmueble de favoritos |
+| `POST` | `/clientes/{id}/favoritos/{codigoInmueble}` | Añadir inmueble a favoritos |
+| `DELETE` | `/clientes/{id}/favoritos/{codigoInmueble}` | Quitar inmueble de favoritos |
+| `POST` | `/clientes/{id}/consultas/{codigoInmueble}` | Registrar consulta sobre un inmueble |
+| `POST` | `/clientes/{id}/descartados/{codigoInmueble}` | Marcar inmueble como descartado |
 
 </details>
 
@@ -190,6 +214,7 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 | `POST` | `/asesores` | Registrar un nuevo asesor |
 | `PUT` | `/asesores/{id}` | Actualizar datos del asesor |
 | `DELETE` | `/asesores/{id}` | Eliminar un asesor |
+| `POST` | `/asesores/{id}/inmuebles/{codigoInmueble}` | Asignar un inmueble a un asesor |
 
 </details>
 
@@ -201,10 +226,10 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 | `GET` | `/visitas` | Listar todas las visitas |
 | `GET` | `/visitas/{id}` | Obtener visita por ID |
 | `POST` | `/visitas` | Agendar una nueva visita |
-| `PUT` | `/visitas/{id}/estado` | Actualizar estado de visita |
+| `PATCH` | `/visitas/{id}/estado` | Actualizar estado de visita |
 | `GET` | `/visitas/prioritarias` | Cola de prioridad *(Max-Heap)* |
-| `POST` | `/visitas/atender` | Atender siguiente de la cola FIFO |
-| `POST` | `/visitas/despachar` | Despachar visita prioritaria del heap |
+| `POST` | `/visitas/atender-siguiente` | Atender siguiente de la cola FIFO |
+| `POST` | `/visitas/despachar-prioritaria` | Despachar visita prioritaria del heap |
 
 </details>
 
@@ -215,9 +240,10 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 |--------|----------|-------------|
 | `GET` | `/operaciones` | Operaciones activas (EN_PROCESO) |
 | `GET` | `/operaciones/historial` | Historial completo *(ArrayList)* |
+| `GET` | `/operaciones/{id}` | Obtener operación por ID |
 | `POST` | `/operaciones` | Registrar una nueva operación |
-| `PUT` | `/operaciones/{id}/cerrar` | Cerrar operación (→ CERRADA) |
-| `PUT` | `/operaciones/{id}/cancelar` | Cancelar operación (→ CANCELADA) |
+| `POST` | `/operaciones/{id}/cerrar` | Cerrar operación (→ CERRADA) |
+| `POST` | `/operaciones/{id}/cancelar` | Cancelar operación (→ CANCELADA) |
 
 </details>
 
@@ -228,7 +254,8 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 |--------|----------|-------------|
 | `GET` | `/alertas` | Alertas activas (no resueltas) |
 | `GET` | `/alertas/historial` | Historial completo de alertas |
-| `PUT` | `/alertas/{id}/resolver` | Marcar alerta como resuelta |
+| `GET` | `/alertas/{id}` | Obtener alerta por ID |
+| `PATCH` | `/alertas/{id}/resolver` | Marcar alerta como resuelta |
 
 </details>
 
@@ -237,8 +264,12 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
+| `GET` | `/busqueda/rango-precio` | Consulta por rango de precios *(BST)* |
+| `GET` | `/busqueda/filtros` | Filtrar por precio, zona, tipo, habitaciones |
 | `GET` | `/busqueda/compatibles/{idCliente}` | Inmuebles compatibles con el perfil del cliente |
+| `GET` | `/busqueda/ordenados-por-precio` | Listado ordenado por precio *(BST inorden)* |
 | `GET` | `/recomendaciones/{idCliente}` | Recomendaciones por historial *(BFS en grafo)* |
+| `POST` | `/recomendaciones/interaccion` | Registrar interacción cliente–inmueble en el grafo |
 | `GET` | `/recomendaciones/{idCliente}/interacciones` | Inmuebles con arista en el grafo |
 
 </details>
@@ -248,8 +279,9 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
-| `GET` | `/reportes/zonas` | Ranking de zonas por actividad |
-| `GET` | `/reportes/asesores` | Ranking de asesores por cierres |
+| `GET` | `/reportes/asesores-efectividad` | Ranking de asesores por cierres |
+| `GET` | `/reportes/zonas-actividad` | Ranking de zonas por actividad |
+| `GET` | `/reportes/inmuebles-visitas` | Inmuebles con más visitas registradas |
 
 </details>
 
@@ -258,12 +290,22 @@ El proxy de Vite redirige automáticamente todas las peticiones al backend (`/in
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
-| `GET` | `/deteccion/ejecutar` | Ejecutar todos los módulos de detección |
+| `POST` | `/deteccion/ejecutar` | Ejecutar todos los módulos de detección |
 | `GET` | `/deteccion/inmuebles-sin-cierre` | Inmuebles con visitas repetidas sin operación |
 | `GET` | `/deteccion/clientes-sin-seguimiento` | Clientes activos sin visitas recientes |
 | `GET` | `/deteccion/asesores-sobrecarga` | Asesores con exceso de visitas asignadas |
-| `GET` | `/deteccion/cambios-precio` | Inmuebles con cambios de precio frecuentes |
+| `GET` | `/deteccion/cambios-precio-frecuentes` | Inmuebles con cambios de precio frecuentes |
 | `GET` | `/deteccion/concentracion-zona` | Zonas con alta concentración de visitas |
+
+</details>
+
+<details>
+<summary><strong>Chatbot</strong></summary>
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `POST` | `/api/v1/chatbot/message` | Enviar mensaje al asistente; devuelve `{ "reply": "..." }` |
+| `GET` | `/api/v1/chatbot/context` | Snapshot del sistema para que n8n lo use como contexto |
 
 </details>
 
