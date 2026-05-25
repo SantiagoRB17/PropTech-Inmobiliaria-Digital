@@ -375,11 +375,11 @@ export default function Inmuebles() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0 12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' }}>
             {[
               { label: 'Precio', key: 'precio' },
               { label: 'Área (m²)', key: 'area' },
-              { label: 'Hab.', key: 'habitaciones' },
+              { label: 'Habitaciones', key: 'habitaciones' },
               { label: 'Baños', key: 'banos' },
             ].map(({ label, key }) => (
               <div key={key} className="field-group">
